@@ -1,17 +1,24 @@
 #!/bin/bash
-# 
-# Integrate the sys structure for device temperature
+#
+# Interrogate the sys structure for device temperature
 # and battery charge; log the results to stdout
+# 
+# Should work for Bash 4.3+
+# 
+# Author: jlj@ctrl-c.club
+# Suggestions and contributions welcome!
 
 # Find where battery info is stored
-#
 bat_dir="/sys/class/power_supply/BAT0"
 if [ ! -d ${bat_dir} ]; then
   bat_dir="/sys/class/power_supply/BAT1"
+  if [ ! -d ${bat_dir} ]; then
+    echo "Usage: no BAT# found; not laptop?" 1>&2
+    exit 1
+  fi
 fi
 
 # Compensate for different filenames
-#
 bat_full_file=${bat_dir}/charge_full
 if [ ! -f ${bat_full_file} ]; then
   bat_full_file=${bat_dir}/energy_full
@@ -21,12 +28,10 @@ else
 fi
 
 # Find max and current charge values
-#
 bat_cap=`cat ${bat_full_file}`
 bat_curr=`cat ${bat_curr_file}`
 
 # Calculate percentage and round it
-#
 bat_perc=`echo "${bat_curr}/${bat_cap}*100" | bc -l`
 
 # Find device temperature
@@ -42,6 +47,6 @@ fi
 temp=`echo "${temp}/1000" | bc -l`
 
 # Log the results to stdout
-printf '%(%F %T)T'
-printf ": device temp °C: %.0f; " $temp
-printf "battery charge: %.0f\n" $bat_perc
+printf "%(%s)T "
+printf "device temp %.0f°C - " $temp
+printf "batt charge %.0f%%\n" $bat_perc
