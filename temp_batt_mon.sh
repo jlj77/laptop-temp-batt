@@ -3,7 +3,10 @@
 # Interrogate the sys structure for device temperature
 # and battery charge; log the results to stdout
 # 
-# Should work for Bash 4.3+
+# Temperature is in degrees Celsius
+# Charge is percentage of battery remaining
+# Output is optimised for Telegraf logparser
+# Should work in Bash 4.3+
 # 
 # Author: jlj@ctrl-c.club
 # Suggestions and contributions welcome!
@@ -48,5 +51,5 @@ temp=`echo "${temp}/1000" | bc -l`
 
 # Log the results to stdout
 printf "%(%s)T "
-printf "device temp %.0f°C - " $temp
-printf "batt charge %.0f%%\n" $bat_perc
+printf "temp=%.0f " $temp
+printf "charge=%.0f\n" $bat_perc
